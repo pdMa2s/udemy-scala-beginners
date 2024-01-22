@@ -28,7 +28,7 @@ abstract class MyList[+T] {
   def ++[B >: T](list: MyList[B]): MyList[B]
 }
 
-object EmptyList extends MyList[Nothing] {
+case object EmptyList extends MyList[Nothing] {
   def head: Nothing = throw new NoSuchElementException
   def tail: MyList[Nothing] = throw new NoSuchElementException
   def isEmpty: Boolean = true
@@ -45,7 +45,7 @@ object EmptyList extends MyList[Nothing] {
 
 }
 
-class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
+case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
   def head: A = h
   def tail: MyList[A] = t
   def isEmpty: Boolean = false
@@ -91,5 +91,5 @@ object LisTest extends App {
   println((list ++ anotherList).toString)
 
   println(list.flatMap((originalObj: Int) => new Cons(originalObj, new Cons(originalObj + 1, EmptyList))).toString)
-
+  println(list == anotherList)
 }
