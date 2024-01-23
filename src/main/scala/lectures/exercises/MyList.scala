@@ -1,13 +1,5 @@
 package lectures.exercises
 
-trait MyPredicate[-T] {
-  def testCond(obj: T): Boolean
-}
-
-trait MyTransformer[-A, B] {
-  def transform(originalObj: A): B
-}
-
 
 abstract class MyList[+T] {
 
@@ -19,11 +11,12 @@ abstract class MyList[+T] {
   // polymorphic call
   override def toString: String = "[" + printElements + "]"
 
-  def map[B](transformer: MyTransformer[T, B]): MyList[B]
+  // Higher-order functions
+  def map[B](transformer: Function1[T, B]): MyList[B]
 
-  def filter(fun: MyPredicate[T]): MyList[T]
+  def filter(fun: T => Boolean): MyList[T]
 
-  def flatMap[B](transformer: MyTransformer[T, MyList[B]]): MyList[B]
+  def flatMap[B](transformer: T => MyList[B]): MyList[B]
 
   def ++[B >: T](list: MyList[B]): MyList[B]
 }
@@ -35,11 +28,11 @@ case object EmptyList extends MyList[Nothing] {
   def add[K >: Nothing](element: K): MyList[K] = new Cons(element, EmptyList)
   override def printElements: String = ""
 
-  def map[B](transformer: MyTransformer[Nothing, B]): MyList[B] = EmptyList
+  def map[B](transformer: Nothing => B): MyList[B] = EmptyList
 
-  def filter(fun: MyPredicate[Nothing]): MyList[Nothing] = EmptyList
+  def filter(fun: Nothing => Boolean): MyList[Nothing] = EmptyList
 
-  def flatMap[B](transformer: MyTransformer[Nothing, MyList[B]]): MyList[B] = EmptyList
+  def flatMap[B](transformer: Nothing => MyList[B]): MyList[B] = EmptyList
 
   override def ++[B >: Nothing](list: MyList[B]): MyList[B] = list
 
@@ -57,15 +50,15 @@ case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
     if (tail.isEmpty) head.toString
     else s"$head " + tail.printElements
 
-  def filter(fun: MyPredicate[A]): MyList[A] =
-    if (fun.testCond(head)) new Cons(head, tail.filter(fun))
+  def filter(fun: A => Boolean): MyList[A] =
+    if (fun(head)) Cons(head, tail.filter(fun))
     else tail.filter(fun)
 
-  def map[B](transformer: MyTransformer[A, B]): MyList[B] =
-    new Cons(transformer.transform(head), tail.map(transformer) )
+  def map[B](transformer: A => B): MyList[B] =
+    Cons(transformer(head), tail.map(transformer))
 
-  def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B] =
-    transformer.transform(h) ++ t.flatMap(transformer)
+  def flatMap[B](transformer: A => MyList[B]): MyList[B] =
+    transformer(h) ++ t.flatMap(transformer)
 
 }
 
@@ -79,11 +72,11 @@ object LisTest extends App {
   println(list.isEmpty)
   println(list.toString)
 
-  val listOfStrings: MyList[String] = new Cons("Hello", new Cons("Scala", EmptyList))
+  val listOfStrings: MyList[String] = Cons("Hello", Cons("Scala", EmptyList))
   println(listOfStrings.toString)
 
-  println(list.map(new MyTransformer[Int, Int] {
-    override def transform(originalObj: Int): Int = originalObj * 2
+  println(list.map(new Function1[Int, Int] {
+    def apply(v1: Int): Int = v1 * 2
   }).toString)
 
   println(list.filter((obj: Int) => obj % 2 == 0).toString)
