@@ -75,14 +75,14 @@ object LisTest extends App {
   val listOfStrings: MyList[String] = Cons("Hello", Cons("Scala", EmptyList))
   println(listOfStrings.toString)
 
-  println(list.map(new Function1[Int, Int] {
-    def apply(v1: Int): Int = v1 * 2
-  }).toString)
+  // println(list.map(x => x * 2).toString)
+  println(list.map(_ * 2).toString)
 
-  println(list.filter((obj: Int) => obj % 2 == 0).toString)
+  // println(list.filter(obj => obj % 2 == 0).toString)
+  println(list.filter(_ % 2 == 0).toString)
 
   println((list ++ anotherList).toString)
 
-  println(list.flatMap((originalObj: Int) => new Cons(originalObj, new Cons(originalObj + 1, EmptyList))).toString)
+  println(list.flatMap((originalObj: Int) => Cons(originalObj, Cons(originalObj + 1, EmptyList))).toString)
   println(list == anotherList)
 }
