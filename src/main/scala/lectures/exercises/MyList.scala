@@ -134,4 +134,10 @@ object LisTest extends App {
   println(list.zipWith(listOfStrings, _ + ": " + _ ))
 
   println(list.fold(0)(_ + _))
+
+  for {
+    n <- list
+    s <- listOfStrings
+  } yield println(n + " " + s)
+
 }
